@@ -1,2 +1,82 @@
-# Task-Quantum-Physiscs-Harmonic-Oscillator-
-Question : Determine the explicit form of the wave function for the Harmonic Oscillator system at the energy level n = 9. At that energy level, where is the particle most likely to be found?
+
+#include <fstream> 
+#include <iostream>
+#include <cmath>
+#include <vector>
+
+
+
+// Konstanta fisik (diset m = ω = ħ = 1 biar sederhana)
+const double m = 1.0;
+const double omega = 1.0;
+const double hbar = 1.0;
+const double pi = 3.141592653589793;
+
+// Faktorial sederhana
+long long factorial(int n) {
+    if (n == 0 || n == 1) return 1;
+    long long result = 1;
+    for (int i = 2; i <= n; i++) result *= i;
+    return result;
+}
+
+// Polinomial Hermite (rekursif)
+double hermite(int n, double x) {
+    if (n == 0) return 1.0;
+    if (n == 1) return 2.0 * x;
+    return 2.0 * x * hermite(n-1, x) - 2.0 * (n-1) * hermite(n-2, x);
+}
+
+// Fungsi gelombang ψ_n(x)
+double psi(int n, double x) {
+    double xi = sqrt(m * omega / hbar) * x;
+    double norm = 1.0 / sqrt(pow(2, n) * factorial(n)) * pow(m*omega/(pi*hbar), 0.25);
+    return norm * exp(-xi*xi/2.0) * hermite(n, xi);
+}
+
+// Energi eigen
+double energi(int n) {
+    return hbar * omega * (n + 0.5);
+}
+
+int main() {
+    
+    int n = 9;  // tingkat energi
+    double x_min = -6.0, x_max = 6.0;
+    int N = 200;  // jumlah titik data
+    double dx = (x_max - x_min) / (N-1);
+
+    std::cout << "Tingkat energi n = " << n << std::endl;
+    std::cout << "Energi eigen E_n = " << energi(n) << " (dengan ħω = 1)\n";
+    std::cout << "x\tpsi_n(x)\t|psi_n(x)|^2\n";
+
+    // Loop cetak data fungsi gelombang
+    for (int i = 0; i < N; i++) {
+        double x = x_min + i*dx;
+        double val = psi(n, x);
+        double prob = val * val;
+        std::cout << x << "\t" << val << "\t" << prob << "\n";
+    }
+   // Loop cetak data fungsi gelombang
+for (int i = 0; i < N; i++) {
+    double x = x_min + i * dx;
+    double val = psi(n, x);
+    double prob = val * val;
+    std::cout << x << "\t" << val << "\t" << prob << "\n";
+}
+// Simpan hasil ke file CSV
+std::ofstream file("hasil_osilator.csv");
+file << "x,psi_n(x),|psi_n(x)|^2\n";
+for (int i = 0; i < N; i++) {
+    double x = x_min + i * dx;
+    double val = psi(n, x);
+    double prob = val * val;
+    file << x << "," << val << "," << prob << "\n";
+}
+file.close();
+
+std::cout << "Data berhasil disimpan ke hasil_osilator.csv" << std::endl;
+
+return 0;
+
+}
